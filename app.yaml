@@ -1,0 +1,7 @@
+runtime: python39
+
+## TODO using Gunicorn/Waitress in production
+# Configure gunicorn worker count via --workers arg based on the App Engine instance class
+# See https://cloud.google.com/appengine/docs/standard/python3/runtime#application_startup
+# entrypoint: gunicorn --workers 2 --worker-class gevent --bind :$PORT main:app
+# entrypoint: waitress-serve --port=80 main:app

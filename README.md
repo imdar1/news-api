@@ -10,7 +10,7 @@ Clone the repo and run the following command in a terminal
 ```
 pip install -r requirements.txt
 ```
-Rename [`secret.py.example`](secret.example.py) to `secret.py` and set up the local database. Ensure the configuration in `secret.py` is correct.
+Rename [`secret.py.example`](secret.py.example) to `secret.py` and set up the local database. Ensure the configuration in `secret.py` is correct.
 
 ## Running the Dev Server
 You can directly run the application using the following command (Do not use it in a production environment).
@@ -32,4 +32,4 @@ gcloud app deploy
 ```
 
 ## API Docs
-Please refer to [API.MD](API.MD)
+Please refer to [API.MD](API.md)

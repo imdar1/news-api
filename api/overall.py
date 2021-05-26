@@ -37,7 +37,7 @@ def get_n_latest_day_sentiment(id_category, day):
 
 @api_overall.route(Route.GET_OVERALL_CHART, methods=["GET"])
 def get_chart_overall():
-    category = int(request.args.get("id_category"))
+    category = request.args.get("id_category")
     time_span = request.args.get("time")
 
     if not time_span:
@@ -51,7 +51,7 @@ def get_chart_overall():
 
 @api_overall.route(Route.GET_OVERALL, methods=["GET"])
 def get_overall():
-    category = int(request.args.get("id_category"))
+    category = request.args.get("id_category")
     time_span = request.args.get("time")
 
     if not time_span:

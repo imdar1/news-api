@@ -7,7 +7,7 @@ api_news = Blueprint(Category.NEWS, __name__)
 
 @api_news.route(Route.GET_NEWS, methods=["GET"])
 def get_news():
-    category = request.args.get('category')
+    category = request.args.get('id_category')
     time_span = request.args.get('time')
 
     if not category or not time_span:

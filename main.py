@@ -3,6 +3,7 @@ from flask_cors import CORS
 from api.categories import api_categories
 from api.overall import api_overall
 from api.news import api_news
+from api.words import api_words
 
 # from waitress import serve
 
@@ -11,6 +12,7 @@ CORS(app)
 app.register_blueprint(api_categories)
 app.register_blueprint(api_overall)
 app.register_blueprint(api_news)
+app.register_blueprint(api_words)
 
 if __name__ == "__main__":
     # serve(app, host='0.0.0.0', port=8080)

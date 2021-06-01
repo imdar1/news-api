@@ -43,7 +43,7 @@ def get_words():
          GROUP BY word \
          ORDER BY freq DESC \
          LIMIT %s"
-        positive_query = "SELECT word, SUM(value) AS freq \
+        negative_query = "SELECT word, SUM(value) AS freq \
          FROM words_negatif \
          WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY \
          GROUP BY word \

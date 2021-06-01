@@ -52,27 +52,31 @@ def get_words():
         positive_params = [ category, start_date, length ]
         negative_params = [ category, start_date, length ]
 
-    db_response = Database.execute(operation=Database.READ, query=positive_query, param=positive_params)
-    positive_words = []
-    for item in db_response.data:
-        positive_data = {
-            "word": item[0],
-            "frequency": int(item[1])
-        }
-        positive_words.append(positive_data)
+    try:
+        db_conn = Database()
+        db_response = db_conn.execute(operation=Database.READ, query=positive_query, param=positive_params)
+        positive_words = []
+        for item in db_response.data:
+            positive_data = {
+                "word": item[0],
+                "frequency": int(item[1])
+            }
+            positive_words.append(positive_data)
 
-    db_response = Database.execute(operation=Database.READ, query=negative_query, param=negative_params)
-    negative_words = []
-    for item in db_response.data:
-        negative_data = {
-            "word": item[0],
-            "frequency": int(item[1])
-        }
-        negative_words.append(negative_data)
+        db_response = db_conn.execute(operation=Database.READ, query=negative_query, param=negative_params)
+        negative_words = []
+        for item in db_response.data:
+            negative_data = {
+                "word": item[0],
+                "frequency": int(item[1])
+            }
+            negative_words.append(negative_data)
 
-    response_data = {
-        "positive": positive_words,
-        "negative": negative_words
-    }
-    response = Response(data=response_data, message='OK', status="get words Ok")
-    return response.get_json()
+        response_data = {
+            "positive": positive_words,
+            "negative": negative_words
+        }
+        response = Response(data=response_data, message='OK', status="get words Ok")
+        return response.get_json()
+    finally:
+        db_conn.close()

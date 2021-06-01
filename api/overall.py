@@ -8,36 +8,38 @@ api_overall = Blueprint(Category.OVERALL, __name__)
 
 def get_n_latest_day_sentiment(id_category, day):
     result = []
-    for i in range(day):
-        query = ""
-        if not id_category or id_category > 0:
-            query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
-            query += "FROM portals "
-            query += "WHERE id_category=%s AND date = CURDATE() - INTERVAL %s DAY"
-            param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, id_category, i]
-        else:
-            query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
-            query += "FROM portals "
-            query += "WHERE date = CURDATE() - INTERVAL %s DAY"
-            param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, i]
-        
-        db_response = Database.execute(
-            operation=Database.READ, 
-            query=query, 
-            param=param
-        )
-        data = {
-            "positive": int(db_response.data[0][0] or 0),
-            "neutral": int(db_response.data[0][1] or 0),
-            "negative": int(db_response.data[0][2] or 0)
-        }
-        result.append(data)
-
-    return result
+    try:
+        db_conn = Database()
+        for i in range(day):
+            if id_category > 0:
+                query = "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) \
+                 FROM portals \
+                 WHERE id_category=%s AND date = CURDATE() - INTERVAL %s DAY"
+                param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, id_category, i]
+            else:
+                query = "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) \
+                FROM portals \
+                WHERE date = CURDATE() - INTERVAL %s DAY"
+                param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, i]
+            
+            db_response = db_conn.execute(
+                operation=Database.READ, 
+                query=query, 
+                param=param
+            )
+            data = {
+                "positive": int(db_response.data[0][0] or 0),
+                "neutral": int(db_response.data[0][1] or 0),
+                "negative": int(db_response.data[0][2] or 0)
+            }
+            result.append(data)
+        return result
+    finally:
+        db_conn.close()
 
 @api_overall.route(Route.GET_OVERALL_CHART, methods=["GET"])
 def get_chart_overall():
-    category = request.args.get("id_category")
+    category = int(request.args.get("id_category") or 0)
     time_span = request.args.get("time")
 
     if not time_span:
@@ -60,29 +62,34 @@ def get_overall():
 
     start_date = int(time_span)
     
-    query = ""
-    if category:
-        query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
-        query += "FROM portals "
-        query += "WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY"
-        param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, category, start_date]
-    else:
-        query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
-        query += "FROM portals "
-        query += "WHERE date >= CURDATE() - INTERVAL %s DAY"
-        param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, start_date]
+    try:
+        query = ""
+        if category:
+            query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
+            query += "FROM portals "
+            query += "WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY"
+            param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, category, start_date]
+        else:
+            query += "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) "
+            query += "FROM portals "
+            query += "WHERE date >= CURDATE() - INTERVAL %s DAY"
+            param = [Sentiment.POSITIVE, Sentiment.NEUTRAL, Sentiment.NEGATIVE, start_date]
 
-    db_response = Database.execute(
-        operation=Database.READ, 
-        query=query, 
-        param=param
-    )
+        db_conn = Database()
+        db_response = db_conn.execute(
+            operation=Database.READ, 
+            query=query, 
+            param=param
+        )
 
-    data = {
-        "positive": int(db_response.data[0][0] or 0),
-        "neutral": int(db_response.data[0][1] or 0),
-        "negative": int(db_response.data[0][2] or 0)
-    }
+        data = {
+            "positive": int(db_response.data[0][0] or 0),
+            "neutral": int(db_response.data[0][1] or 0),
+            "negative": int(db_response.data[0][2] or 0)
+        }
+        
+        response = Response(data=data, message="OK", status="Get overall OK")
+        return response.get_json()
     
-    response = Response(data=data, message="OK", status="Get overall OK")
-    return response.get_json()
+    finally:
+        db_conn.close()

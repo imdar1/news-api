@@ -14,24 +14,35 @@ class Database:
     READ = 0
     WRITE = 1
 
-    @staticmethod
-    def execute(operation, query, param=None):
-        connection = mysql.connector.connect(host=Secret.HOST,
-                                             user=Secret.USER,
-                                             passwd=Secret.PASSWORD,
-                                             database=Secret.DB)
-        cursor = connection.cursor()
+    def _open_connection(self):
+        if Secret.HOST == "":
+            self.connection = mysql.connector.connect(unix_socket=Secret.UNIX_SOCKET,
+                                                user=Secret.USER,
+                                                passwd=Secret.PASSWORD,
+                                                database=Secret.DB)
+        else:
+            self.connection = mysql.connector.connect(host=Secret.HOST,
+                                                user=Secret.USER,
+                                                passwd=Secret.PASSWORD,
+                                                database=Secret.DB)
+        self.cursor = self.connection.cursor()
+    
+    def __init__(self):
+        self._open_connection()
+
+    def execute(self, operation, query, param=None):
         try:
             if operation == Database.READ:
                 if param is None:
-                    cursor.execute(query)
+                   self.cursor.execute(query)
                 else:
-                    cursor.execute(query, param)
-                return DatabaseResponse(data=cursor.fetchall(),
+                   self.cursor.execute(query, param)
+                return DatabaseResponse(data=self.cursor.fetchall(),
                                         message="",
                                         status=True)
+
             elif operation == Database.WRITE:
-                cursor.execute(query, param)
+                self.cursor.execute(query, param)
                 connection.commit()
                 return DatabaseResponse(data=[],
                                         message="",
@@ -40,3 +51,8 @@ class Database:
             return DatabaseResponse(data=[],
                                     message=str(e),
                                     status=False)
+    
+    def close(self):
+        if self.connection.is_connected():
+            self.cursor.close()
+            self.connection.close()

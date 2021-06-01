@@ -1,7 +1,10 @@
 runtime: python39
 
-## TODO using Gunicorn/Waitress in production
+# Set App Engine instance class
+# See https://cloud.google.com/appengine/docs/standard/#instance_classes
+instance_class: F2
+
+# Set entrypoint to locate Flask app, which is 'app' in module main.py
 # Configure gunicorn worker count via --workers arg based on the App Engine instance class
 # See https://cloud.google.com/appengine/docs/standard/python3/runtime#application_startup
-# entrypoint: gunicorn --workers 2 --worker-class gevent --bind :$PORT main:app
-# entrypoint: waitress-serve --port=80 main:app
+entrypoint: gunicorn -b :8080 -w 2 main:app

@@ -81,6 +81,7 @@ Get all news by category and date
         "status":"Get news OK"
     }
     ```
+    **Note: Response is sorted starting from today to `time` argument**
 
 ## Get Overall News Sentiment
 Get overall news sentiment for the past N days for a specific category/all categories.
@@ -159,3 +160,53 @@ Get sentiment of news for each day starting from a specific date and a category/
         "status":"Get chart OK"
     }
     ```
+    **Note: Response is sorted starting from today to `time` argument**
+
+## Get Positive & Negative Words/Tags Frequency
+Get the frequency of positive & negative words/tags.
+
+- **URL**
+  
+    /api/words
+
+- **Method**
+ 
+    GET
+
+- **URL Params**
+
+    **Required:**
+
+    `time=[integer]` : News from ... days ago
+
+    **Optional:**
+
+    `id_category=[integer]` : News' category ID
+
+    `length=[integer]` : Words/Tags count
+
+- **Sample Response**:
+  
+    Code: 200
+
+    Content: 
+    ```json
+    {
+        "data": {
+            "negative": [
+                {"frequency":17,"word":"sedekah"},
+                {"frequency":16,"word":"baik"},
+                {"frequency":5,"word":"berbagi"}
+            ],
+            "positive":[
+                {"frequency":20,"word":"covid"},
+                {"frequency":5,"word":"jahat"},
+                {"frequency":3,"word":"buruk"}
+            ]
+        },
+        "message":"OK",
+        "status":"get words OK"
+    }
+    ```
+
+    **Note: Response is sorted starting from today to `time` argument**

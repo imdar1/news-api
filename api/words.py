@@ -8,23 +8,71 @@ api_words = Blueprint(Category.WORDS, __name__)
 
 @api_words.route(Route.GET_WORDS, methods=["GET"])
 def get_words():
-    query = "SELECT words_positif.word,\
-     SUM(words_positif.value) + SUM(words_negatif.value) as frekuensi \
-     FROM words_negatif INNER JOIN words_positif ON words_negatif.value = words_positif.value \
-     GROUP BY words_positif.word ORDER BY frekuensi DESC LIMIT 1"
-    # query = "SELECT * FROM words_negatif"
-    db_response = Database.execute(operation=Database.READ, query=query, param=[])
-    print(db_response)
-    negative_data = []
-    no = 1
+    category = request.args.get("id_category")
+    time_span = request.args.get("time")
+    length = request.args.get("length")
+
+    if not length:
+        length = 5
+
+    if not time_span:
+        response = Response(data={}, message="Error", status="Bad Request")
+        return response.get_json(), 400
+
+    start_date = int(time_span)
+
+    if not category:
+        positive_query = "SELECT word, SUM(value) AS freq \
+         FROM words_positif \
+         WHERE date >= CURDATE() - INTERVAL %s DAY \
+         GROUP BY word \
+         ORDER BY freq DESC \
+         LIMIT %s"
+        negative_query = "SELECT word, SUM(value) AS freq \
+         FROM words_negatif \
+         WHERE date >= CURDATE() - INTERVAL %s DAY \
+         GROUP BY word \
+         ORDER BY freq DESC \
+         LIMIT %s"
+        positive_params = [ start_date, length ] 
+        negative_params = [ start_date, length ]
+    else:
+        positive_query = "SELECT word, SUM(value) AS freq \
+         FROM words_positif \
+         WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY \
+         GROUP BY word \
+         ORDER BY freq DESC \
+         LIMIT %s"
+        positive_query = "SELECT word, SUM(value) AS freq \
+         FROM words_negatif \
+         WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY \
+         GROUP BY word \
+         ORDER BY freq DESC \
+         LIMIT %s"
+        positive_params = [ category, start_date, length ]
+        negative_params = [ category, start_date, length ]
+
+    db_response = Database.execute(operation=Database.READ, query=positive_query, param=positive_params)
+    positive_words = []
     for item in db_response.data:
-        print(item)
-        new_data = {
-            "id": ++no,
+        positive_data = {
             "word": item[0],
             "frequency": int(item[1])
         }
-        negative_data.append(new_data)
+        positive_words.append(positive_data)
 
-    response = Response(data=negative_data, message='OK', status="get Ok")
+    db_response = Database.execute(operation=Database.READ, query=negative_query, param=negative_params)
+    negative_words = []
+    for item in db_response.data:
+        negative_data = {
+            "word": item[0],
+            "frequency": int(item[1])
+        }
+        negative_words.append(negative_data)
+
+    response_data = {
+        "positive": positive_words,
+        "negative": negative_words
+    }
+    response = Response(data=response_data, message='OK', status="get words Ok")
     return response.get_json()

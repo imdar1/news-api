@@ -10,7 +10,7 @@ def get_n_latest_day_sentiment(id_category, day):
     result = []
     try:
         db_conn = Database()
-        for i in range(day):
+        for i in range(1, day+1):
             if id_category > 0:
                 query = "SELECT SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)), SUM(IF(sentiment=%s, 1, 0)) \
                  FROM portals \

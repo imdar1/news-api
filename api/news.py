@@ -17,7 +17,7 @@ def get_news():
     start_date = int(time_span)
 
     try:
-        query = "SELECT * FROM portals WHERE id_category=%s AND date >= NOW() - INTERVAL %s DAY"
+        query = "SELECT * FROM portals WHERE id_category=%s AND date >= CURDATE() - INTERVAL %s DAY"
         db_conn = Database()
         db_response = db_conn.execute(operation=Database.READ, query=query, param=[category, start_date])
         

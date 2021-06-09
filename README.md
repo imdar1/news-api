@@ -1,5 +1,5 @@
 # news-api
-Backend API for VizNews Mobile App
+Backend API for VizNews Mobile App. Currently this service is already up and running on Google Cloud App Engine. You can try it on: https://promising-idea-314607.et.r.appspot.com/
 
 ## Requirements
 - Python 3
